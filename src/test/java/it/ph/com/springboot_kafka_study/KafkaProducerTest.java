@@ -6,12 +6,15 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class KafkaProducerTest {
-    private static final String TOPIC_NAME = "JAVA_TOPIC";
 
     public static Properties getProperties() {
         Properties props = new Properties();
@@ -76,7 +79,7 @@ public class KafkaProducerTest {
              * key         分区的key
              * value       发送的消息
              */
-            Future<RecordMetadata> send = kafkaProducer.send(new ProducerRecord<>(TOPIC_NAME, "指定分区的key" + i, "发送的消息" + i));
+            Future<RecordMetadata> send = kafkaProducer.send(new ProducerRecord<>(KafkaAdminTest.TOPIC_NAME, "指定分区的key" + i, "发送的消息" + i));
             try {
                 //这一步是用来看发送后返回的数据的，不是必须要的
                 RecordMetadata recordMetadata = send.get();
@@ -106,20 +109,67 @@ public class KafkaProducerTest {
         KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(properties);
 
         for (int i = 0; i < 3; i++) {
-            kafkaProducer.send(new ProducerRecord<>(TOPIC_NAME, "指定分区的key" + i, "发送的消息" + i), new Callback() {
+            kafkaProducer.send(new ProducerRecord<>(KafkaAdminTest.TOPIC_NAME, "指定分区的key" + i, "发送的消息" + i), new Callback() {
                 // Callback的回调函数
                 @Override
                 public void onCompletion(RecordMetadata recordMetadata, Exception exception) {
                     //如果exception等于空则表示消息发送成功
-
                     if (exception == null) {
                         System.out.println(String.valueOf("消息发送状态：" + recordMetadata));
                     } else {
-                        System.out.println(String.valueOf("消息发送失败"));
+                        System.out.println(String.valueOf("消息发送失败" + exception));
                         exception.printStackTrace();
                     }
                 }
             });
         }
+        kafkaProducer.close();
+    }
+
+    /**
+     * 发送消息到指定Producer分区中（指定分区ID即可）
+     */
+    @Test
+    public void testSendWithCallbackById() {
+        Properties properties = getProperties();
+        KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(properties);
+        for (int i = 0; i < 5; i++) {
+            kafkaProducer.send(new ProducerRecord<>(KafkaAdminTest.TOPIC_NAME, i, "指定分区的k" + "ey" + i, "发送的消息" + i), new Callback() {
+                @Override
+                public void onCompletion(RecordMetadata recordMetadata, Exception exception) {
+                    if (exception == null) {
+                        System.out.println("消息发送成功：" + String.valueOf(recordMetadata));
+                    } else {
+                        System.out.println("消息发送失败！" + String.valueOf(exception));
+                        exception.printStackTrace();
+                    }
+                }
+            });
+        }
+        kafkaProducer.close();
+    }
+
+    /**
+     * 自定义分区策略 发送消息
+     */
+    @Test
+    public void testSendWithPartitonStrategy() {
+        Properties properties = getProperties();
+        properties.put("partitioner.class", "it.ph.com.springboot_kafka_study.config.PhPartitioner");
+        KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(properties);
+        for (int i = 0; i < 5; i++) {
+            kafkaProducer.send(new ProducerRecord<>(KafkaAdminTest.TOPIC_NAME, "testKey", "发送的消息" + i), new Callback() {
+                @Override
+                public void onCompletion(RecordMetadata recordMetadata, Exception exception) {
+                    if (exception == null) {
+                        System.out.println("消息发送成功！" + String.valueOf(recordMetadata));
+                    } else {
+                        System.out.println("消息发送失败！" + String.valueOf(exception));
+                        exception.printStackTrace();
+                    }
+                }
+            });
+        }
+        kafkaProducer.close();
     }
 }

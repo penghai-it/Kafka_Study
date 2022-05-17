@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class KafkaAdminTest {
-    private static final String TOPIC_NAME = "JAVA_TOPIC";
+    public static final String TOPIC_NAME = "JAVA_TOPIC";
 
     //与kafka建立连接
     public static AdminClient initAdminClient() {
@@ -21,7 +21,7 @@ public class KafkaAdminTest {
     public void createTopicTest() {
         AdminClient adminClient = initAdminClient();
         //设置Topic的名字，分区数，备份数
-        NewTopic newTopic = new NewTopic(TOPIC_NAME, 2, (short) 1);
+        NewTopic newTopic = new NewTopic(TOPIC_NAME, 5, (short) 1);
         CreateTopicsResult createTopicsResult = adminClient.createTopics(List.of(newTopic));
         try {
             //返回的是一个future类型（可以通过下面这个方式获取值），等到创建。成功不会有任何返回，失败则会报错

@@ -1,2 +1,5 @@
 server:
   port: 8080
+#配置日志打印级别
+logging:
+  config: classpath:logback.xml
