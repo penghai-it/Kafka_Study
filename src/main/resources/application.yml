@@ -3,3 +3,42 @@ server:
 #配置日志打印级别
 logging:
   config: classpath:logback.xml
+spring:
+  kafka:
+    bootstrap-servers: 123.57.214.53:9092,123.57.214.53:9093
+    #生产者配置
+    producer:
+      # 消息重发的次数。
+      #retries: 0
+      # 消息重发的次数。 配置事务的话：如果用户显式地指定了 retries 参数，那么这个参数的值必须大于0
+      retries: 1
+      #一个批次可以使用的内存大小
+      batch-size: 16384
+      # 设置生产者内存缓冲区的大小。
+      buffer-memory: 33554432
+      # 键的序列化方式
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      # 值的序列化方式
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      #配置事务的话：如果用户显式地指定了 acks 参数，那么这个参数的值必须-1 all
+      acks: all
+      #事务id
+      transaction-id-prefix: xdclass-tran_
+
+    #消费者配置
+    consumer:
+      # 自动提交的时间间隔 在spring boot 2.X 版本是值的类型为Duration 需要符合特定的格式，如1S,1M,2H,5D
+      auto-commit-interval: 1S
+      # 该属性指定了消费者在读取一个没有偏移量的分区或者偏移量无效的情况下该作何处理：
+      auto-offset-reset: earliest
+      # 是否自动提交偏移量，默认值是true,为了避免出现重复数据和数据丢失，可以把它设置为false,然后手动提交偏移量
+      enable-auto-commit: false
+      # 键的反序列化方式
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      # 值的反序列化方式
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      #手工ack，调用ack后立刻提交offset
+      ack-mode: manual_immediate
+      #容器运行的线程数
+      concurrency: 4

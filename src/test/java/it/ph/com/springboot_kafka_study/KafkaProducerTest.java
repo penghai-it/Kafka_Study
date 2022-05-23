@@ -18,7 +18,7 @@ public class KafkaProducerTest {
 
     public static Properties getProperties() {
         Properties props = new Properties();
-        props.put("bootstrap.servers", "123.57.214.53:9092");
+        props.put("bootstrap.servers", "123.57.214.53:9092,123.57.214.53:9093");
         //props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "112.74.55.160:9092");
         // 当producer向leader发送数据时，可以通过request.required.acks参数来设置数据可靠性的级别,分别是0, 1，all。
         props.put("acks", "all");
@@ -73,7 +73,7 @@ public class KafkaProducerTest {
         Properties properties = getProperties();
         KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(properties);
         int i = 0;
-        while (i < 3) {
+        while (i < 6) {
             /**
              * TOPIC_NAME  topic名
              * key         分区的key

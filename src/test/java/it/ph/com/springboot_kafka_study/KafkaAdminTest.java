@@ -12,7 +12,7 @@ public class KafkaAdminTest {
     //与kafka建立连接
     public static AdminClient initAdminClient() {
         Properties properties = new Properties();
-        properties.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "123.57.214.53:9092");
+        properties.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "123.57.214.53:9092,123.57.214.53:9093");
         return AdminClient.create(properties);
     }
 
@@ -21,7 +21,7 @@ public class KafkaAdminTest {
     public void createTopicTest() {
         AdminClient adminClient = initAdminClient();
         //设置Topic的名字，分区数，备份数
-        NewTopic newTopic = new NewTopic(TOPIC_NAME, 5, (short) 1);
+        NewTopic newTopic = new NewTopic(TOPIC_NAME, 4, (short) 2);
         CreateTopicsResult createTopicsResult = adminClient.createTopics(List.of(newTopic));
         try {
             //返回的是一个future类型（可以通过下面这个方式获取值），等到创建。成功不会有任何返回，失败则会报错
@@ -55,7 +55,7 @@ public class KafkaAdminTest {
     @Test
     public void deleteTopic() {
         AdminClient adminClient = initAdminClient();
-        DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(Arrays.asList("t2", "t1", "xdclass-topic", "phtest", "phtest-topic"));
+        DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(Arrays.asList("JAVA_TOPIC1", "JAVA_TOPIC"));
         try {
             deleteTopicsResult.all().get();
         } catch (InterruptedException | ExecutionException e) {
